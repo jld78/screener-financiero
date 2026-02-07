@@ -9,6 +9,7 @@ public class MainApp {
         List<String> watchlist = List.of("NVDA", "MSFT", "PLTR", "AMD", "AVGO", "TSLA", "META", "AMZN", "SPY", "QQQ");
         TradingScanner scanner = new TradingScanner();
         AlphaVantageClient client = new AlphaVantageClient();
+        FinancialDataClient financialDataClient = new FinancialDataClient();
 
         System.out.println("--- Executing Trading Scanner ---");
 

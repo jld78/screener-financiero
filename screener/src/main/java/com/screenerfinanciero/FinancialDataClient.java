@@ -20,14 +20,14 @@ public class FinancialDataClient {
     private static final OkHttpClient client = new OkHttpClient();
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String API_KEY = System.getenv("FINANCIALDATA_API_KEY");
-    private static final String BASE_URL = "https://financialdata.net/api/v1/stock_prices";
+    private static final String BASE_URL = "https://financialdata.net/api/v1/stock-prices";
 
     public BarSeries fetchSeries(String symbol, String period) throws IOException {
         if (API_KEY == null || API_KEY.isEmpty()) {
             throw new IOException("FINANCIALDATA_API_KEY environment variable not set.");
         }
 
-        String url = String.format("%s?symbols=%s&period=%s&api_key=%s", BASE_URL, symbol, period, API_KEY);
+        String url = String.format("%s?identifier=%s&period=%s&key=%s", BASE_URL, symbol, period, API_KEY);
 
         Request request = new Request.Builder()
             .url(url)
