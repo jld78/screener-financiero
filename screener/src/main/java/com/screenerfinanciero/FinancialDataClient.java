@@ -22,12 +22,12 @@ public class FinancialDataClient {
     private static final String API_KEY = System.getenv("FINANCIALDATA_API_KEY");
     private static final String BASE_URL = "https://financialdata.net/api/v1/stock-prices";
 
-    public BarSeries fetchSeries(String symbol, String period) throws IOException {
+    public BarSeries fetchSeries(String symbol) throws IOException {
         if (API_KEY == null || API_KEY.isEmpty()) {
             throw new IOException("FINANCIALDATA_API_KEY environment variable not set.");
         }
 
-        String url = String.format("%s?identifier=%s&period=%s&key=%s", BASE_URL, symbol, period, API_KEY);
+        String url = String.format("%s?identifier=%s&key=%s", BASE_URL, symbol, API_KEY);
 
         Request request = new Request.Builder()
             .url(url)
@@ -41,18 +41,13 @@ public class FinancialDataClient {
             String responseBody = response.body().string();
             JsonNode root = mapper.readTree(responseBody);
 
-            if (root.has("error")) {
-                throw new IOException("FinancialData API error: " + root.get("error").asText());
-            }
-
-            JsonNode dataNode = root.get("data");
-            if (dataNode == null || !dataNode.isArray()) {
-                throw new IOException("Data not found or is not an array in response for symbol: " + symbol);
+            if (!root.isArray()) {
+                throw new IOException("Unexpected JSON response format: expected an array but got a " + root.getNodeType());
             }
 
             BarSeries series = new BaseBarSeriesBuilder().withName(symbol).build();
             List<JsonNode> dailyData = new ArrayList<>();
-            dataNode.elements().forEachRemaining(dailyData::add);
+            root.elements().forEachRemaining(dailyData::add);
 
             // Sort by date to ensure correct order for BarSeries
             Collections.sort(dailyData, Comparator.comparing(node -> LocalDate.parse(node.get("date").asText())));
